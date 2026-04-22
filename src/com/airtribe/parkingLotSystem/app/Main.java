@@ -21,16 +21,27 @@ public class Main {
         spots.put(SpotType.CAR, new LinkedList<>());
         spots.put(SpotType.BUS, new LinkedList<>());
 
-        for (int i = 1; i <= 5; i++) {
-            spots.get(SpotType.MOTORCYCLE).offer(new ParkingSpot("B" + i, SpotType.MOTORCYCLE));
-            spots.get(SpotType.CAR).offer(new ParkingSpot("C" + i, SpotType.CAR));
-        }
-        for (int i = 1; i <= 2; i++) {
-            spots.get(SpotType.BUS).offer(new ParkingSpot("BUS" + i, SpotType.BUS));
+        // Create floors
+        List<Floor> floors = new ArrayList<>();
+
+        for (int f = 1; f <= 2; f++) {
+            Floor floor = new Floor(f);
+
+            // Add spots per floor
+            for (int i = 1; i <= 3; i++) {
+                floor.addSpot(new ParkingSpot("F" + f + "-B" + i, SpotType.MOTORCYCLE, f));
+                floor.addSpot(new ParkingSpot("F" + f + "-C" + i, SpotType.CAR, f));
+            }
+
+            for (int i = 1; i <= 1; i++) {
+                floor.addSpot(new ParkingSpot("F" + f + "-BUS" + i, SpotType.BUS, f));
+            }
+
+            floors.add(floor);
         }
 
-        // Services wiring
-        SpotAllocationService alloc = new SpotAllocationService(spots);
+        // Inject into allocation service
+        SpotAllocationService alloc = new SpotAllocationService(floors);
         TicketRepository repo = new InMemoryTicketRepository();
 
         Map<VehicleType, PricingStrategy> strategyMap = new HashMap<>();
@@ -66,6 +77,7 @@ public class Main {
                     ParkingTicket ticket = controller.checkIn(plate, vt);
                     if (ticket != null) {
                         System.out.println("Allocated Spot: " + ticket.getSpot().getSpotId());
+                        System.out.println("Floor: " + ticket.getSpot().getFloorNumber());
                         System.out.println("Ticket ID: " + ticket.getTicketId());
                     }
                     break;

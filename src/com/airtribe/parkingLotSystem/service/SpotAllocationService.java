@@ -8,27 +8,41 @@ import java.util.*;
 
 public class SpotAllocationService {
 
-    private Map<SpotType, Queue<ParkingSpot>> availableSpots;
+    private List<Floor> floors;
 
-    public SpotAllocationService(Map<SpotType, Queue<ParkingSpot>> availableSpots) {
-        this.availableSpots = availableSpots;
+    public SpotAllocationService(List<Floor> floors) {
+        this.floors = floors;
     }
 
     public synchronized ParkingSpot allocateSpot(Vehicle vehicle) {
-        for (SpotType type : getAllowed(vehicle.getType())) {
-            Queue<ParkingSpot> q = availableSpots.get(type);
 
-            if (q != null && !q.isEmpty()) {
-                ParkingSpot spot = q.poll();
-                if (spot.assignVehicle()) return spot;
+        for (Floor floor : floors) {
+            for (SpotType type : getAllowed(vehicle.getType())) {
+
+                Queue<ParkingSpot> spots = floor.getSpots(type);
+
+                if (spots != null && !spots.isEmpty()) {
+                    ParkingSpot spot = spots.poll();
+
+                    if (spot.assignVehicle()) {
+                        return spot;
+                    }
+                }
             }
         }
+
         throw new NoSpotAvailableException();
     }
 
     public void releaseSpot(ParkingSpot spot) {
         spot.freeSpot();
-        availableSpots.get(spot.getType()).offer(spot);
+
+        for (Floor floor : floors) {
+            if (floor.getFloorNumber() == spot.getFloorNumber()) {
+                floor.getSpots(spot.getType()).offer(spot);
+                return;
+            }
+        }
     }
 
     private List<SpotType> getAllowed(VehicleType type) {
