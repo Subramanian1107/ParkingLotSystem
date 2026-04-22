@@ -67,14 +67,10 @@ public class Main {
                     System.out.print("Enter Plate: ");
                     String plate = sc.next();
 
-                    System.out.print("Type (1-Bike, 2-Car, 3-Bus): ");
-                    int type = sc.nextInt();
+                    System.out.print("Enter Vehicle Type (MOTORCYCLE/CAR/BUS): ");
+                    String typeInput = sc.next();
 
-                    VehicleType vt = (type == 1) ? VehicleType.MOTORCYCLE :
-                            (type == 2) ? VehicleType.CAR :
-                                    VehicleType.BUS;
-
-                    ParkingTicket ticket = controller.checkIn(plate, vt);
+                    ParkingTicket ticket = controller.checkIn(plate, typeInput);
                     if (ticket != null) {
                         System.out.println("Allocated Spot: " + ticket.getSpot().getSpotId());
                         System.out.println("Floor: " + ticket.getSpot().getFloorNumber());

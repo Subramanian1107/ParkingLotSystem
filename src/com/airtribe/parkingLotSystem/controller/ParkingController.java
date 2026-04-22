@@ -13,9 +13,9 @@ public class ParkingController {
         this.service = service;
     }
 
-    public ParkingTicket checkIn(String plate, VehicleType type) {
+    public ParkingTicket checkIn(String plate, String typeInput) {
         try {
-            Vehicle v = VehicleFactory.createVehicle(plate, type);
+            Vehicle v = VehicleFactory.createVehicle(plate, typeInput);
             return service.checkIn(v);
         } catch (ParkingException e) {
             System.out.println("Error: " + e.getMessage());
